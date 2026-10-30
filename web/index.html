@@ -2202,12 +2202,19 @@ async function conectarBase() {
 
 async function conectarExterna() {
   var url = window.CDC_TASAS_URL; if (!url) return;
+  try {
+    var guardadas = normalizarDoc(JSON.parse(localStorage.getItem('cdc.tasas')));
+    if (guardadas && guardadas.ts > DATOS.ts) aplicarDatos(guardadas);
+  } catch (e) { }
   async function traer() {
     try {
       var r = await fetch(url + '?h=' + Math.floor(Date.now() / 6e5), { cache: 'no-cache' });
       if (!r.ok) return;
       var d = normalizarDoc(await r.json());
-      if (d && d.ts > DATOS.ts) aplicarDatos(d);
+      if (d && d.ts > DATOS.ts) {
+        aplicarDatos(d);
+        try { localStorage.setItem('cdc.tasas', JSON.stringify(d)); } catch (e) { }
+      }
     } catch (e) { }
   }
   traer(); setInterval(traer, 18e5);
