@@ -86,6 +86,13 @@ def serie_g(data):
     return out
 
 
+def cierre_previo(html, fila):
+    try:
+        return float(bloque(html, "ds:3")[0][0][8])
+    except Exception:
+        return float(fila[7])
+
+
 def decimales(v):
     t = repr(float(v))
     return len(t.split(".")[1]) if "." in t else 0
@@ -95,9 +102,9 @@ def google(mon):
     # Finance alterna dos fuentes para el mismo par (medido 30-oct: 3172,34527 y 3224,49). La de Morningstar,
     # la misma de la búsqueda de Google, trae 4 o más decimales; la otra, 2. Se reintenta hasta dar con ella.
     mejor = None
-    for intento in range(6):
+    for intento in range(10):
         if intento:
-            time.sleep(1.5)
+            time.sleep(2)
         html = pedir(f"https://www.google.com/finance/quote/USD-{mon}",
                      {"Accept-Language": "es-CO,es;q=0.9", "Cookie": "CONSENT=YES+1"})
         fila = bloque(html, "ds:2")[0][0][0]
@@ -110,6 +117,11 @@ def google(mon):
     if mejor is None:
         raise ValueError("Google no devolvió el par pedido")
     fila, html = mejor
+    if decimales(fila[5][0]) < 4:
+        # solo salió la otra fuente: mejor conservar la última buena que publicar una distinta a la de la búsqueda
+        prev = (cargar_previo() or {}).get("monedas", {}).get(mon)
+        if prev and decimales(prev["r"]) >= 4:
+            raise ValueError("solo respondió la fuente alterna")
     r = float(fila[5][0])
     ts = int(fila[11][0])
     ds11 = bloque(html, "ds:11")
@@ -136,7 +148,7 @@ def google(mon):
         k = t.replace(minute=(t.minute // 15) * 15, second=0)
         b[k] = v
     dia15 = sorted(b.items())
-    return {"r": r, "ts": ts, "c": float(fila[7]), "mes": mes, "dia": dia15}
+    return {"r": r, "ts": ts, "c": cierre_previo(html, fila), "mes": mes, "dia": dia15}
 
 
 def cargar_previo():
