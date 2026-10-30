@@ -1,0 +1,32 @@
+name: Publicar app y tasas
+on:
+  push: { branches: [main] }
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+permissions: { contents: write, pages: write, id-token: write }
+concurrency: { group: pages, cancel-in-progress: false }
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment: { name: github-pages }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with: { path: cache, key: "cache-${{ github.run_id }}", restore-keys: "cache-" }
+      - name: Partir de las últimas tasas publicadas
+        run: curl -sf "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/tasas.json" -o /tmp/prev.json && python3 -c "import json;json.load(open('/tmp/prev.json'))" && cp /tmp/prev.json datos/tasas.json || true
+      - name: Traer tasas de Google Finance
+        run: python3 actualizar.py || echo "::warning::Google no respondió; siguen las tasas anteriores"
+      - run: python3 armar.py
+      - name: Guardar una vez al día (mantiene viva la programación)
+        if: github.event_name == 'schedule'
+        run: |
+          if [ "$(date -u +%H)" = "12" ]; then
+            git config user.name "casa-de-cambio"; git config user.email "actions@users.noreply.github.com"
+            git add datos/tasas.json && git commit -m "Tasas del día" && git push || true
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: web }
+      - uses: actions/deploy-pages@v4

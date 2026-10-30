@@ -1,0 +1,310 @@
+<title>🪙 Casa de Cambio</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="color-scheme" content="dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0a0e15; --bg2:#101724; --panel:rgba(255,255,255,.04); --panel2:rgba(255,255,255,.07); --linea:rgba(255,255,255,.09);
+  --txt:#eef1f7; --txt2:#a4adbf; --txt3:#6f7a90; --sube:#5fd6a4; --baja:#ff8077; --ambar:#f2b25c;
+  --h1:34; --s1:62%; --l1:52%;  /* origen */
+  --h2:148; --s2:30%; --l2:50%; /* destino */
+  --gut:max(16px, env(safe-area-inset-left, 0px));
+  --gutd:max(16px, env(safe-area-inset-right, 0px));
+  --fuente:"Geist",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--txt);font-family:var(--fuente);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;overflow-x:hidden;-webkit-font-smoothing:antialiased;position:relative}
+body::before{content:"";position:fixed;inset:-20% -10% auto -10%;height:70vh;background:radial-gradient(60% 55% at 22% 18%,hsla(var(--h1),var(--s1),var(--l1),.30),transparent 72%);pointer-events:none;z-index:-1}
+body::after{content:"";position:fixed;inset:auto -10% -25% -10%;height:70vh;background:radial-gradient(60% 55% at 80% 78%,hsla(var(--h2),var(--s2),var(--l2),.26),transparent 72%);pointer-events:none;z-index:-1}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0;touch-action:manipulation}
+button:focus-visible,input:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid hsl(var(--h2) 70% 72%);outline-offset:3px;border-radius:12px}
+[hidden]{display:none!important}
+.app{position:relative;opacity:0;max-width:1100px;margin:0 auto;padding:max(10px,env(safe-area-inset-top,0px)) var(--gutd) calc(48px + env(safe-area-inset-bottom,0px)) var(--gut);display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.barra{display:flex;align-items:center;justify-content:space-between;min-height:44px;grid-column:1/-1}
+.marca{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--txt2);font-weight:500;display:flex;align-items:center;gap:10px}
+.marca i{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#efe5cf,#968b73);box-shadow:0 0 0 1px rgba(255,255,255,.25) inset;display:inline-block}
+.icono-btn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--txt2);background:var(--panel);border:1px solid var(--linea)}
+.icono-btn[aria-pressed="false"] svg .onda{opacity:.0}
+.icono-btn svg{width:20px;height:20px}
+.izq,.der{min-width:0;display:flex;flex-direction:column;gap:14px}
+.bloque{position:relative}
+.selector{display:inline-flex;align-items:center;gap:10px;padding:7px 14px 7px 9px;border-radius:999px;background:var(--panel2);border:1px solid var(--linea);min-height:44px;max-width:100%;transition:background .2s}
+.selector:hover{background:rgba(255,255,255,.1)}
+.selector .chip{display:inline-flex;align-items:center;gap:9px;min-width:0;will-change:transform}
+.bandera{font-size:24px;line-height:1;width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.07)}
+.cod{font-weight:600;font-size:17px;letter-spacing:.02em}
+.nom{color:var(--txt2);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+.selector svg{width:14px;height:14px;color:var(--txt3);flex:none}
+.monto-origen{font-size:clamp(40px,12vw,68px);font-weight:500;letter-spacing:-.025em;line-height:1.12;margin-top:6px;min-height:1.12em;display:flex;align-items:center;white-space:nowrap;transform-origin:left center;width:100%;cursor:text}
+.monto-origen .caret{display:inline-block;width:3px;height:.8em;margin-left:3px;border-radius:2px;background:hsl(var(--h1) 70% 70%);animation:caret 1.1s steps(2,jump-none) infinite}
+@keyframes caret{50%{opacity:0}}
+.monto-origen .op{color:hsl(var(--h1) 70% 76%);margin:0 .18em;font-weight:400}
+.cuenta{min-height:22px;color:var(--txt2);font-size:16px;margin-top:2px}
+.cuenta b{color:var(--txt);font-weight:600}
+.slot{height:116px;display:grid;place-items:center;position:relative;margin:0}
+.slot::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,transparent,var(--linea) 20%,var(--linea) 38%,transparent 44%,transparent 56%,var(--linea) 62%,var(--linea) 80%,transparent)}
+.moneda-btn{width:92px;height:92px;border-radius:50%;position:relative;z-index:6;touch-action:none;cursor:grab;display:block}
+.moneda-btn:active{cursor:grabbing}
+.moneda-btn:focus-visible{outline-offset:-6px;border-radius:50%}
+.monto-destino{display:block;width:100%;text-align:left;font-size:clamp(50px,16vw,92px);font-weight:600;letter-spacing:-.03em;line-height:1.14;margin-top:6px;color:hsl(var(--h2) 36% 97%);position:relative;cursor:copy}
+.odo{display:inline-flex;align-items:flex-start;white-space:nowrap;transform-origin:left center;height:1.14em}
+.odo .d{position:relative;display:inline-block;width:.6em;height:1.14em;overflow:hidden;-webkit-mask-image:linear-gradient(transparent 4%,#000 22%,#000 78%,transparent 96%);mask-image:linear-gradient(transparent 4%,#000 22%,#000 78%,transparent 96%)}
+.odo .d>i{position:absolute;left:0;top:0;width:100%;font-style:normal;will-change:transform}
+.odo .d b{display:block;height:1.14em;line-height:1.14em;font-weight:inherit;text-align:center}
+.odo .s{display:inline-block;width:.28em;height:1.14em;line-height:1.14em;text-align:center;color:var(--txt2);font-weight:400}
+.odo .neg{display:inline-block;height:1.14em;line-height:1.14em;margin-right:.05em}
+.fantasma{position:fixed;left:0;top:0;z-index:90;pointer-events:none;font-weight:600;letter-spacing:-.03em;white-space:nowrap;color:hsl(var(--h2) 40% 92%);will-change:transform,opacity}
+.copiado{position:absolute;right:0;top:12px;padding:8px 14px;border-radius:999px;background:hsl(var(--h2) 30% 22%);border:1px solid hsl(var(--h2) 40% 40%);font-size:15px;font-weight:600;opacity:0;pointer-events:none;color:hsl(var(--h2) 60% 90%)}
+.tasa{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:15px;color:var(--txt2);min-height:24px;line-height:1.35}
+.tasa .eq{color:var(--txt);font-weight:500}
+.tasa .var{display:inline-flex;align-items:center;gap:4px;font-weight:600;font-size:14px;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.06)}
+.tasa .var.sube{color:var(--sube)} .tasa .var.baja{color:var(--baja)}
+.tasa .var svg{width:10px;height:10px}
+.tasa .hace.viejo{color:var(--ambar);font-weight:600}
+.tasa.hipo .eq{color:hsl(var(--h2) 70% 82%)}
+.comision{font-size:15px;color:var(--txt2);padding:10px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--linea)}
+.comision b{color:var(--txt);font-weight:600}
+.hablar{display:flex;align-items:center;justify-content:center;gap:12px;height:58px;padding:0 28px;border-radius:29px;font-size:18px;font-weight:600;letter-spacing:.01em;background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.07));border:1px solid rgba(255,255,255,.22);box-shadow:0 14px 34px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.28) inset;-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);color:#fff;will-change:transform}
+.hablar svg{width:22px;height:22px}
+.hablar kbd{font:500 12px var(--fuente);padding:3px 8px;border-radius:7px;border:1px solid rgba(255,255,255,.25);color:var(--txt2);display:none}
+.hablar-caja{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:100%;max-width:440px;margin:2px auto;z-index:10}
+.hablar-caja .hablar{width:100%}
+.teclado{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.tecla{height:52px;border-radius:17px;font-size:23px;font-weight:500;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.07);box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 calc(7px - var(--p,0)*5px) calc(14px - var(--p,0)*8px) rgba(0,0,0,.32);display:grid;place-items:center;transform:translateY(calc(var(--p,0)*2.5px)) scale(calc(1 - var(--p,0)*.07));will-change:transform;position:relative;overflow:hidden}
+.tecla::after{content:"";position:absolute;inset:0;background:#fff;opacity:calc(var(--p,0)*.14);border-radius:inherit}
+.tecla.op{background:linear-gradient(180deg,hsla(var(--h2),34%,40%,.55),hsla(var(--h2),34%,26%,.55));color:hsl(var(--h2) 80% 90%)}
+.tecla.ig{background:linear-gradient(180deg,hsl(var(--h2) 40% 62%),hsl(var(--h2) 40% 46%));color:#0a0e15;font-weight:600}
+.tecla.fn{color:var(--txt2);font-size:19px}
+.tecla.ancho{grid-column:span 2}
+.tecla svg{width:26px;height:26px}
+.der{gap:16px}
+.grafica{background:var(--panel);border:1px solid var(--linea);border-radius:28px;padding:18px 16px 14px;position:relative;overflow:hidden}
+.rangos{display:flex;gap:2px;position:relative;background:rgba(255,255,255,.05);border-radius:14px;padding:3px;margin-bottom:14px}
+.rangos button{flex:1;height:36px;border-radius:11px;font-size:14px;font-weight:600;color:var(--txt2);position:relative;z-index:1;transition:color .2s}
+.rangos button[aria-pressed="true"]{color:#fff}
+.rangos button[hidden]{display:none}
+.rangos .pulgar{position:absolute;left:0;top:3px;height:36px;border-radius:11px;background:hsla(var(--h2),30%,48%,.5);border:1px solid hsla(var(--h2),50%,70%,.35);z-index:0;will-change:transform,width}
+.lectura{min-height:60px;display:flex;flex-direction:column;gap:2px;justify-content:center}
+.lectura .l1{font-size:13px;color:var(--txt2);letter-spacing:.01em}
+.lectura .l2{font-size:24px;font-weight:600;letter-spacing:-.01em}
+.lectura .l3{font-size:13.5px;color:var(--txt2)}
+.lienzo{position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none;height:250px;cursor:crosshair}
+.lienzo svg{display:block;width:100%;height:100%;overflow:visible}
+.lienzo text{font-family:var(--fuente);font-variant-numeric:tabular-nums;fill:var(--txt3);font-size:11px}
+.lienzo .maxmin{fill:var(--txt2);font-size:11.5px;font-weight:500}
+.lienzo .rej{stroke:rgba(255,255,255,.06);stroke-width:1}
+.pulso{transform-box:fill-box;transform-origin:center;animation:late 1.8s ease-out infinite}
+@keyframes late{0%{transform:scale(.6);opacity:.7}70%,100%{transform:scale(2.6);opacity:0}}
+.frase{font-size:17px;line-height:1.45;color:var(--txt);padding:2px 4px 0}
+.frase b{font-weight:600}
+.fuente{font-size:12px;color:var(--txt3);padding:0 4px}
+.pares h3,.ajuste summary{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt3);font-weight:500;margin:0 0 10px}
+.fichas{display:flex;flex-wrap:wrap;gap:8px}
+.ficha{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:999px;background:var(--panel2);border:1px solid var(--linea);font-size:14.5px;font-weight:500;min-height:40px}
+.ficha span.f{font-size:17px}
+.ficha .fl{color:var(--txt3);font-size:13px}
+.vacio{color:var(--txt3);font-size:14px}
+.ajuste{background:var(--panel);border:1px solid var(--linea);border-radius:20px;padding:14px 16px}
+.ajuste summary{cursor:pointer;margin:0;list-style:none;display:flex;justify-content:space-between;align-items:center;text-transform:none;letter-spacing:0;font-size:15.5px;color:var(--txt);font-weight:500}
+.ajuste summary::-webkit-details-marker{display:none}
+.ajuste summary svg{width:16px;height:16px;color:var(--txt3);transition:transform .3s}
+.ajuste[open] summary svg{transform:rotate(180deg)}
+.ajuste .cuerpo{padding-top:14px;display:flex;flex-direction:column;gap:10px;color:var(--txt2);font-size:14.5px}
+.ajuste .fila{display:flex;align-items:center;gap:14px}
+.ajuste input[type=range]{flex:1;accent-color:hsl(var(--h2) 55% 62%);height:32px}
+.ajuste output{min-width:62px;text-align:right;font-weight:600;color:var(--txt);font-size:17px}
+/* hoja inferior */
+.hoja{position:fixed;inset:0;z-index:50;display:none}
+.hoja.abierta{display:block}
+.telon{position:absolute;inset:0;background:rgba(4,7,12,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0}
+.panel-hoja{position:absolute;left:0;right:0;bottom:0;max-height:88vh;max-height:88dvh;height:640px;margin:0 auto;max-width:640px;background:linear-gradient(180deg,#151d2c,#0e1420);border-radius:30px 30px 0 0;border:1px solid var(--linea);border-bottom:0;display:flex;flex-direction:column;will-change:transform;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -30px 80px rgba(0,0,0,.5);transform:translateY(105%)}
+.asa{padding:10px 0 4px;display:grid;place-items:center;touch-action:none;cursor:grab}
+.asa i{width:44px;height:5px;border-radius:3px;background:rgba(255,255,255,.22)}
+.panel-hoja h2{margin:6px var(--gut) 10px;font-size:22px;font-weight:600;letter-spacing:-.01em}
+.buscar{margin:0 max(16px,env(safe-area-inset-left,0px)) 12px;position:relative}
+.buscar input{width:100%;height:46px;border-radius:14px;border:1px solid var(--linea);background:rgba(255,255,255,.06);color:var(--txt);font:inherit;font-size:16px;padding:0 14px 0 42px;outline:none}
+.buscar input:focus-visible{outline:2px solid hsl(var(--h2) 70% 72%);outline-offset:2px}
+.buscar svg{position:absolute;left:14px;top:14px;width:18px;height:18px;color:var(--txt3)}
+.rejilla{overflow:auto;overscroll-behavior:contain;padding:6px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:14px 10px;flex:1;min-height:0;align-content:start;grid-auto-rows:max-content;-webkit-overflow-scrolling:touch}
+.celda{align-self:start;display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 2px 8px;border-radius:18px;perspective:420px;min-height:44px}
+.celda[aria-selected="true"] .mini{box-shadow:0 0 0 2px hsl(var(--hc) 70% 72%),0 10px 20px rgba(0,0,0,.45)}
+.celda .cc{font-weight:600;font-size:14px}
+.celda .cn{font-size:11.5px;color:var(--txt3);text-align:center;line-height:1.2;max-width:92px}
+.mini{flex:none;width:64px;height:64px;border-radius:50%;position:relative;display:grid;place-items:center;transform-style:preserve-3d;transform:rotateX(calc(var(--ty,0)*1deg)) rotateY(calc(var(--tx,0)*1deg));transition:transform .25s cubic-bezier(.2,.8,.2,1);background:radial-gradient(circle at 32% 28%,#f1e8d4,#c7b99c 48%,#8b816b 100%);box-shadow:0 10px 18px rgba(0,0,0,.45),0 0 0 3px hsl(var(--hc) 30% 42%),inset 0 -5px 8px rgba(0,0,0,.28),inset 0 3px 5px rgba(255,255,255,.55)}
+.mini::before{content:"";position:absolute;inset:6px;border-radius:50%;border:2px solid rgba(60,50,32,.35);box-shadow:0 1px 0 rgba(255,255,255,.4);}
+.mini::after{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.55) 46%,transparent 58%);mix-blend-mode:soft-light}
+.mini span{font-weight:700;font-size:21px;color:#463d2a;text-shadow:0 1px 0 rgba(255,255,255,.5);position:relative;z-index:1;letter-spacing:-.02em}
+.mini span.l2{font-size:17px} .mini span.l3{font-size:14px}
+.vuela{position:fixed;left:0;top:0;z-index:95;pointer-events:none;will-change:transform,opacity}
+/* voz */
+.voz{position:fixed;inset:0;z-index:20;display:none;flex-direction:column;align-items:center;padding:max(12px,env(safe-area-inset-top,0px)) var(--gutd) calc(20px + env(safe-area-inset-bottom,0px)) var(--gut);background:rgba(5,8,13,.72);-webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2);opacity:0}
+.voz.abierta{display:flex}
+.voz .cerrar{align-self:flex-end;width:44px;height:44px;border-radius:50%;background:var(--panel2);border:1px solid var(--linea);display:grid;place-items:center}
+.voz .cerrar svg{width:18px;height:18px}
+.voz .hueco{flex:0 0 min(46vh,340px);width:100%}
+.voz .texto{width:100%;max-width:560px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;min-height:0}
+.voz .guia{color:var(--txt2);font-size:17px;min-height:26px}
+.voz .guia em{font-style:normal;color:var(--txt)}
+.voz .vivo{font-size:clamp(24px,6.4vw,34px);font-weight:500;line-height:1.3;letter-spacing:-.01em;display:flex;flex-wrap:wrap;gap:8px 10px;justify-content:center;min-height:46px}
+.voz .vivo .p{color:var(--txt2)}
+.voz .vivo .f{--hc:var(--h2);padding:2px 14px 4px;border-radius:14px;background:hsla(var(--hc),45%,50%,.24);border:1px solid hsla(var(--hc),60%,72%,.55);color:#fff;box-shadow:0 0 22px hsla(var(--hc),60%,60%,.3);will-change:transform}
+.voz .vivo .f.monto{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.4)}
+.voz .aviso{color:var(--ambar);font-size:16px;min-height:22px;line-height:1.35}
+.voz .planb{width:100%;display:none;flex-direction:column;gap:10px;align-items:stretch}
+.voz.planb .planb{display:flex}
+.voz .planb p{margin:0;color:var(--txt2);font-size:15.5px;line-height:1.4}
+.voz .planb .campo{display:flex;gap:8px}
+.voz .planb input{flex:1;min-width:0;height:52px;border-radius:16px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:var(--txt);font:inherit;font-size:18px;padding:0 16px;outline:none}
+.voz .planb input:focus-visible{outline:2px solid hsl(var(--h2) 70% 72%);outline-offset:2px}
+.voz .boton{height:52px;padding:0 22px;border-radius:16px;font-weight:600;font-size:16px;background:hsl(var(--h2) 40% 58%);color:#08101a}
+.voz .boton.sec{background:var(--panel2);color:var(--txt);border:1px solid var(--linea)}
+.voz .acciones{display:flex;gap:10px;justify-content:center}
+.entendido{position:fixed;left:0;top:0;z-index:96;pointer-events:none;padding:2px 14px 4px;border-radius:14px;background:hsla(var(--h2),40%,50%,.3);border:1px solid hsla(var(--h2),55%,72%,.6);color:#fff;font-weight:600;font-size:22px;white-space:nowrap;will-change:transform,opacity}
+/* canvases */
+#fx,#gl{position:fixed;left:0;top:0;pointer-events:none}
+#fx{z-index:4}
+#gl{z-index:5}
+/* apertura */
+.apertura{position:fixed;inset:0;z-index:60;background:radial-gradient(70% 60% at 50% 46%,#16202f,#070a10 72%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:max(18vh,80px)}
+.apertura .destello{position:absolute;inset:0;background:radial-gradient(circle min(80vw,62vh) at 50% 42%,rgba(255,247,228,.85),rgba(255,238,205,.32) 38%,transparent 72%);opacity:0;mix-blend-mode:screen}
+.apertura .titulo{font-size:clamp(20px,5.4vw,30px);letter-spacing:.42em;font-weight:500;color:#e9e2d2;display:flex;padding-left:.42em;text-shadow:0 0 24px rgba(255,236,200,.4);margin-top:0;position:relative;z-index:1}
+.apertura .titulo span{display:inline-block;opacity:0;white-space:pre;will-change:transform,opacity}
+.apertura .saltar{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:max(14px,env(safe-area-inset-top,0px));padding:10px 16px;border-radius:999px;font-size:14px;color:var(--txt2);background:var(--panel);border:1px solid var(--linea);z-index:2}
+/* moneda CSS de respaldo */
+.mcss{position:fixed;left:0;top:0;width:200px;height:200px;z-index:5;pointer-events:none;perspective:900px;display:none;--mh:34;--ms:60%}
+.mcss .mc{position:absolute;inset:0;transform-style:preserve-3d}
+.mcss .mce,.mcss .mcf{position:absolute;inset:0;border-radius:50%}
+.mcss .mce{background:conic-gradient(from 20deg,#b7aa8e,#e8dec8,#8d836c,#d6caad,#b7aa8e);box-shadow:inset 0 0 0 3px hsl(var(--mh) 30% 45%)}
+.mcss .mcf{backface-visibility:hidden;-webkit-backface-visibility:hidden;background:radial-gradient(circle at 32% 28%,#f1e8d4,#c7b99c 48%,#8b816b 100%);box-shadow:inset 0 0 0 7px rgba(255,255,255,.12),inset 0 0 0 9px rgba(60,50,32,.3),inset 0 -14px 22px rgba(0,0,0,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#463d2a}
+.mcss .s{font-size:86px;font-weight:700;line-height:1;text-shadow:0 2px 0 rgba(255,255,255,.5)}
+.mcss .c{font-size:17px;letter-spacing:.35em;font-weight:600;margin-top:6px;padding-left:.35em}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cargando-datos{opacity:.6}
+@media (min-width:900px){
+  .app{grid-template-columns:minmax(380px,430px) minmax(0,1fr);column-gap:64px;padding-top:28px;padding-bottom:60px}
+  .barra{padding-bottom:6px}
+  .hablar-caja{position:static;width:auto;max-width:none;margin:0;z-index:auto}
+  .hablar kbd{display:inline-block}
+  .lienzo{height:310px}
+  .der{position:sticky;top:24px;align-self:start}
+  .tecla{height:54px}
+}
+@media (max-width:380px){ .tecla{height:48px;font-size:21px} .teclado{gap:7px} .nom{max-width:34vw} }
+@media (max-height:880px) and (max-width:899px){ .slot{height:84px} .moneda-btn{width:72px;height:72px} .tecla{height:37px;font-size:19px;border-radius:13px} .teclado{gap:5px} .hablar{height:48px} }
+@media (max-height:740px) and (max-width:899px){ .tecla{height:37px;font-size:18px;border-radius:12px} .teclado{gap:6px} }
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.12s!important}
+  .pulso{animation:none}
+}
+</style>
+
+<div class="app" id="app">
+  <header class="barra">
+    <div class="marca"><i></i>Casa de Cambio</div>
+    <button class="icono-btn" id="btnVoz" aria-label="Respuesta hablada" aria-pressed="true" title="Respuesta hablada">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z" fill="currentColor" fill-opacity=".15"/><path class="onda" d="M15.5 9a4 4 0 010 6M18 6.5a7.5 7.5 0 010 11"/></svg>
+    </button>
+  </header>
+
+  <main class="izq">
+    <section class="bloque origen" aria-label="Monto de origen">
+      <button class="selector" id="selDe" aria-label="Cambiar la moneda de origen">
+        <span class="chip" id="chipDe"><span class="bandera"></span><span class="cod"></span><span class="nom"></span></span>
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6l4.5 4.5L12.5 6"/></svg>
+      </button>
+      <div class="monto-origen" id="origen" aria-live="polite"></div>
+      <div class="cuenta" id="cuenta"></div>
+    </section>
+
+    <div class="slot"><button class="moneda-btn" id="moneda" aria-label="Intercambiar las monedas. Tócala o arrástrala para girarla."></button></div>
+
+    <section class="bloque destino" aria-label="Resultado">
+      <button class="selector" id="selA" aria-label="Cambiar la moneda de destino">
+        <span class="chip" id="chipA"><span class="bandera"></span><span class="cod"></span><span class="nom"></span></span>
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6l4.5 4.5L12.5 6"/></svg>
+      </button>
+      <button class="monto-destino" id="destino" aria-label="Resultado. Toca para copiarlo."><div class="odo" id="odo" aria-hidden="true"></div></button>
+      <span class="sr" id="destinoSr" aria-live="polite"></span>
+      <div class="copiado" id="copiado" role="status">Copiado</div>
+    </section>
+
+    <div class="tasa" id="tasa"></div>
+    <div class="comision" id="comLinea" hidden></div>
+
+    <div class="hablar-caja"><button class="hablar" id="hablar" aria-label="Hablar para convertir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3" fill="currentColor" fill-opacity=".18"/><path d="M5.5 11.5a6.5 6.5 0 0013 0M12 18v3M8.5 21h7"/></svg>Habla<kbd>Espacio</kbd></button></div>
+
+    <div class="teclado" id="teclado" role="group" aria-label="Teclado de cálculo"></div>
+  </main>
+
+  <aside class="der">
+    <section class="grafica" aria-label="Gráfica de la tasa">
+      <div class="rangos" id="rangos" role="group" aria-label="Rango de tiempo"><span class="pulgar" id="pulgar"></span></div>
+      <div class="lectura" id="lectura" aria-live="off"></div>
+      <div class="lienzo" id="lienzo" role="img" aria-label="Gráfica de la tasa de cambio. Arrastra el dedo para ver el valor de cada día."></div>
+    </section>
+    <p class="frase" id="frase"></p>
+    <p class="fuente" id="fuente">1D a 1M: Google Finance · 3M a 2A: histórico de referencia</p>
+    <section class="pares"><h3>Tus últimos pares</h3><div class="fichas" id="pares"></div></section>
+    <details class="ajuste" id="ajuste">
+      <summary>Lo que te cobra tu tarjeta o banco<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6l4.5 4.5L12.5 6"/></svg></summary>
+      <div class="cuerpo">
+        <span>Si tu banco o tarjeta te cobra una comisión, ponla aquí y te mostramos cuánto te queda. Empieza en 0 %.</span>
+        <div class="fila"><input type="range" id="comRango" min="0" max="5" step="0.1" value="0" aria-label="Comisión en porcentaje"><output id="comSal" for="comRango">0 %</output></div>
+      </div>
+    </details>
+  </aside>
+</div>
+
+<div class="hoja" id="hoja" role="dialog" aria-modal="true" aria-labelledby="hojaTit">
+  <div class="telon" id="telon"></div>
+  <div class="panel-hoja" id="panelHoja">
+    <div class="asa" id="asa"><i></i></div>
+    <h2 id="hojaTit">Elige una moneda</h2>
+    <label class="buscar"><span class="sr">Buscar moneda</span>
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="9" r="5.5"/><path d="M13.5 13.5L17 17"/></svg>
+      <input id="buscar" type="search" placeholder="Busca por nombre, país o código" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+    </label>
+    <div class="rejilla" id="rejilla" role="listbox" aria-label="Monedas"></div>
+  </div>
+</div>
+
+<div class="voz" id="voz" role="dialog" aria-modal="true" aria-label="Convertir con la voz">
+  <button class="cerrar" id="vozCerrar" aria-label="Cerrar"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l10 10M14 4L4 14"/></svg></button>
+  <div class="hueco"></div>
+  <div class="texto">
+    <div class="vivo" id="vozVivo" aria-live="polite"></div>
+    <div class="guia" id="vozGuia"></div>
+    <div class="aviso" id="vozAviso" role="status"></div>
+    <div class="planb">
+      <p id="vozInstr">Toca el micrófono de tu teclado y dilo.</p>
+      <div class="campo"><input id="vozTexto" type="text" placeholder="Ejemplo: cien dólares a pesos" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" aria-label="Escribe o dicta lo que quieres convertir"><button class="boton" id="vozListo">Listo</button></div>
+    </div>
+    <div class="acciones"><button class="boton sec" id="vozOtra" hidden>Intentar otra vez</button></div>
+  </div>
+</div>
+
+<div class="apertura" id="apertura" role="presentation">
+  <div class="destello" id="destello"></div>
+  <div class="titulo" id="titulo" aria-label="Casa de Cambio"></div>
+  <button class="saltar" id="saltar">Saltar</button>
+</div>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<script>setTimeout(function(){var a=document.getElementById('apertura');if(a&&!window.__abierto){a.style.display='none';var p=document.getElementById('app');if(p)p.style.opacity=1;}},4300);</script>
+<!--@externa-->
+<script id="datos" type="application/json"><!--@datos--></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" id="tres"></script>
+<script><!--@interprete--></script>
+<script><!--@nucleo--></script>
+<script><!--@moneda3d--></script>
+<script><!--@app_base--></script>
+<script><!--@app_graf--></script>
+<script><!--@app_voz--></script>

@@ -1,0 +1,38 @@
+name: Construir APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["src/**", "android/**", "armar.py", ".github/workflows/apk.yml"]
+permissions: { contents: write }
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: "8.9" }
+      - name: Empacar la app
+        run: |
+          python3 armar.py
+          mkdir -p android/app/src/main/assets/www
+          cp web/index.html web/three.min.js web/tasas.json android/app/src/main/assets/www/
+      - name: Firma
+        env: { FIRMA_B64: "${{ secrets.FIRMA_B64 }}" }
+        run: |
+          if [ -n "$FIRMA_B64" ]; then echo "$FIRMA_B64" | base64 -d > /tmp/firma.p12; echo "FIRMA_ARCHIVO=/tmp/firma.p12" >> "$GITHUB_ENV"; fi
+      - name: Compilar
+        working-directory: android
+        env:
+          FIRMA_CLAVE: ${{ secrets.FIRMA_CLAVE }}
+          VERSION_APK: ${{ github.run_number }}
+          URL_TASAS: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/tasas.json
+        run: gradle --no-daemon assembleRelease
+      - name: Publicar el APK
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk CasaDeCambio.apk
+          gh release delete ultima --yes --cleanup-tag || true
+          gh release create ultima CasaDeCambio.apk --title "Casa de Cambio (última)" --notes "Descarga CasaDeCambio.apk en el celular."

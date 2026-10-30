@@ -1,0 +1,34 @@
+plugins { id "com.android.application" }
+
+android {
+    namespace "com.bravli.casadecambio"
+    compileSdk 34
+    buildFeatures { buildConfig true }
+    defaultConfig {
+        applicationId "com.bravli.casadecambio"
+        minSdk 24
+        targetSdk 34
+        versionCode Integer.parseInt(System.getenv("VERSION_APK") ?: "1")
+        versionName "1." + (System.getenv("VERSION_APK") ?: "1")
+        buildConfigField "String", "URL_TASAS", "\"${System.getenv("URL_TASAS") ?: "tasas.json"}\""
+    }
+    signingConfigs {
+        propia {
+            storeFile file(System.getenv("FIRMA_ARCHIVO") ?: "no-existe.p12")
+            storePassword System.getenv("FIRMA_CLAVE")
+            keyAlias "casadecambio"
+            keyPassword System.getenv("FIRMA_CLAVE")
+            storeType "pkcs12"
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig System.getenv("FIRMA_ARCHIVO") ? signingConfigs.propia : signingConfigs.debug
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

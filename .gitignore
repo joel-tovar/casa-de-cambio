@@ -1,0 +1,8 @@
+android/firma/
+android/app/build/
+android/.gradle/
+android/app/src/main/assets/
+capturas/
+.DS_Store
+__pycache__/
+local.html
