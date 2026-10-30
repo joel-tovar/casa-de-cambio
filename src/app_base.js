@@ -24,6 +24,10 @@ function serieCruce(A, B, k) {
 function msDia(s) { var p = s.split('-'); return Date.UTC(+p[0], +p[1] - 1, +p[2], 12); }
 function msHora(s) { return Date.parse(s + ':00-05:00'); }
 function cambioDia() {
+  var ma = DATOS.monedas[S.de], mb = DATOS.monedas[S.a];
+  if (ma && mb && (ma.c || S.de === 'USD') && (mb.c || S.a === 'USD')) {
+    return (mb.r / ma.r) / ((S.a === 'USD' ? 1 : mb.c) / (S.de === 'USD' ? 1 : ma.c)) - 1;
+  }
   var v = serieCruce(S.de, S.a, 'm1'); if (!v) return null;
   var i = v.length - 1; while (i >= 0 && v[i] == null) i--;
   var j = i - 1; while (j >= 0 && v[j] == null) j--;

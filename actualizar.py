@@ -86,12 +86,32 @@ def serie_g(data):
     return out
 
 
+def decimales(v):
+    t = repr(float(v))
+    return len(t.split(".")[1]) if "." in t else 0
+
+
 def google(mon):
-    html = pedir(f"https://www.google.com/finance/quote/USD-{mon}",
-                 {"Accept-Language": "es-CO,es;q=0.9", "Cookie": "CONSENT=YES+1"})
-    ds2 = bloque(html, "ds:2")
-    r = float(ds2[0][0][0][5][0])
-    ts = int(ds2[0][0][0][11][0])
+    # Finance alterna dos fuentes para el mismo par (medido 30-oct: 3172,34527 y 3224,49). La de Morningstar,
+    # la misma de la búsqueda de Google, trae 4 o más decimales; la otra, 2. Se reintenta hasta dar con ella.
+    mejor = None
+    for intento in range(6):
+        if intento:
+            time.sleep(1.5)
+        html = pedir(f"https://www.google.com/finance/quote/USD-{mon}",
+                     {"Accept-Language": "es-CO,es;q=0.9", "Cookie": "CONSENT=YES+1"})
+        fila = bloque(html, "ds:2")[0][0][0]
+        if fila[2] != f"USD / {mon}":
+            continue
+        if mejor is None or decimales(fila[5][0]) > decimales(mejor[0][5][0]):
+            mejor = (fila, html)
+        if decimales(fila[5][0]) >= 4:
+            break
+    if mejor is None:
+        raise ValueError("Google no devolvió el par pedido")
+    fila, html = mejor
+    r = float(fila[5][0])
+    ts = int(fila[11][0])
     ds11 = bloque(html, "ds:11")
     mes = serie_g(ds11)
     if len(mes) < 5:
@@ -103,6 +123,12 @@ def google(mon):
             dia = serie_g(ds10)
     except Exception:
         dia = []
+    # el día también mezcla las dos fuentes: si hay suficientes de Morningstar, solo esas, y cierra en la tasa actual
+    finos = [p for p in dia if decimales(p[1]) >= 4]
+    if len(finos) >= 8:
+        dia = finos
+    if dia:
+        dia[-1] = (dia[-1][0], r)
     # buckets de 15 minutos (último valor del bucket)
     b = {}
     for t, v in dia:
@@ -110,7 +136,7 @@ def google(mon):
         k = t.replace(minute=(t.minute // 15) * 15, second=0)
         b[k] = v
     dia15 = sorted(b.items())
-    return {"r": r, "ts": ts, "mes": mes, "dia": dia15}
+    return {"r": r, "ts": ts, "c": float(fila[7]), "mes": mes, "dia": dia15}
 
 
 def cargar_previo():
@@ -173,7 +199,7 @@ def principal():
             time.sleep(1)
         try:
             g[m] = google(m)
-            monedas[m] = {"r": g[m]["r"], "ts": g[m]["ts"]}
+            monedas[m] = {"r": g[m]["r"], "ts": g[m]["ts"], "c": g[m]["c"]}
         except Exception as e:
             fallas.append(m)
             print(f"  ! Google falló para {m}: {type(e).__name__}: {str(e)[:80]}")
